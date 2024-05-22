@@ -1,0 +1,14 @@
+table,
+td {
+  border: solid black 1px;
+  border-collapse: collapse;
+  padding: 10px;
+}
+
+.title-row {
+  background-color: antiquewhite;
+}
+
+code {
+  color: rgb(66, 18, 210);
+}

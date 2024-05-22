@@ -1,78 +1,244 @@
 const express = require("express"),
-  morgan = require("morgan");
+  morgan = require("morgan"),
+  bodyParser = require("body-parser"),
+  uuid = require("uuid");
 const app = express();
+
+app.use(bodyParser.json());
+
+let users = [
+  {
+    id: 2,
+    name: "joeseph",
+    favMovies: ["Thor"],
+    email: "joey@joetown.ca",
+  },
+  {},
+  {},
+];
 
 let movies = [
   {
-    Title: "Iron Man",
-    Release: "2008",
-    Director: "Jon Favreau",
-    Length: "2h 6m",
+    title: "Iron Man",
+    release: "2008",
+    director: { name: "Jon Favreau" },
+    length: "2h 6m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "The Incredible Hulk",
-    Release: "2008",
-    Director: "Louis Leterrier",
-    Length: "1h 52m",
+    title: "The Incredible Hulk",
+    release: "2008",
+    director: { name: "Louis Leterrier" },
+    length: "1h 52m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "Iron Man 2",
-    Release: "2010",
-    Director: "Jon Favreau",
-    Length: "2h 4m",
+    title: "Iron Man 2",
+    release: "2010",
+    director: { name: "Jon Favreau" },
+    length: "2h 4m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "Thor",
-    Release: "2011",
-    Director: "Kenneth Branagh",
-    Length: "1h 55m",
+    title: "Thor",
+    release: "2011",
+    director: { name: "Kenneth Branagh" },
+    length: "1h 55m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "Captain America: The First Avenger",
-    Release: "2011",
-    Director: "Joe Johnston",
-    Length: "2h 4m",
+    title: "Captain America: The First Avenger",
+    release: "2011",
+    director: { name: "Joe Johnston" },
+    length: "2h 4m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "The Avengers",
-    Release: "2012",
-    Director: "Joss Whedon",
-    Length: "2h 23m",
+    title: "The Avengers",
+    release: "2012",
+    director: { name: "Joss Whedon" },
+    length: "2h 23m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "Iron Man 3",
-    Release: "2013",
-    Director: "Shane Black",
-    Length: "2h 10m",
+    title: "Iron Man 3",
+    release: "2013",
+    director: { name: "Shane Black" },
+    length: "2h 10m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "Thor: The Dark World",
-    Release: "2013",
-    Director: "Alan Taylor",
-    Length: "1h 52m",
+    title: "Thor: The Dark World",
+    release: "2013",
+    director: { name: "Alan Taylor" },
+    length: "1h 52m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "Captain America: The Winter Soldier",
-    Release: "2014",
-    Director: "Anthony & Joe Russo",
-    Length: "2h 16m",
+    title: "Captain America: The Winter Soldier",
+    release: "2014",
+    director: { name: "Anthony & Joe Russo" },
+    length: "2h 16m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 
   {
-    Title: "Gaurdians of the Galaxy",
-    Release: "2014",
-    Director: "James Gunn",
-    Length: "2h 1m",
+    title: "Gaurdians of the Galaxy",
+    release: "2014",
+    director: { name: "James Gunn" },
+    length: "2h 1m",
+    genre: {
+      name: "superhero movie",
+      description: "words",
+    },
   },
 ];
+
+//create new user
+app.post("/users", (req, res) => {
+  const newUser = req.body;
+
+  if (newUser.name) {
+    newUser.id = uuid.v4();
+    users.push(newUser);
+    res.status(201).json(newUser);
+  } else {
+    res.status(400).send("user must include a name");
+  }
+});
+
+//Update user info
+app.put("/users/:id", (req, res) => {
+  const { id } = req.params;
+  const updatedUser = req.body;
+
+  let user = users.find((user) => user.id == id);
+  if (user) {
+    user.name = updatedUser.name;
+    res.status(200).json(user);
+  } else {
+    res.status(400).send("this user does not exist");
+  }
+});
+
+//post new movie to favMovies array
+app.post("/users/:id/:movieTitle", (req, res) => {
+  const { id, movieTitle } = req.params;
+
+  let user = users.find((user) => user.id == id);
+  if (user) {
+    user.favMovies.push(movieTitle);
+    res
+      .status(200)
+      .send(`${movieTitle} has been added to user ${id}'s list of fav's`);
+  } else {
+    res.status(400).send("this user does not exist");
+  }
+});
+
+//delete a movie from favMovies array
+app.delete("/users/:id/:movieTitle", (req, res) => {
+  const { id, movieTitle } = req.params;
+
+  let user = users.find((user) => user.id == id);
+  if (user) {
+    user.favMovies = user.favMovies.filter((title) => title !== movieTitle);
+    res
+      .status(200)
+      .send(`${movieTitle} has been removed from user ${id}'s list of fav's`);
+  } else {
+    res.status(400).send("this user does not exist");
+  }
+});
+
+//delete user profile
+app.delete("/users/:id", (req, res) => {
+  const { id } = req.params;
+
+  let user = users.find((user) => user.id == id);
+  if (user) {
+    users = users.filter((user) => user.id != id);
+    res.status(200).send(`User ${id} has been deleted.`);
+  } else {
+    res.status(400).send("this user does not exist");
+  }
+});
+
+//get all movies
+app.get("/movies", (req, res) => {
+  res.status(200).json(movies);
+});
+
+//get single movie data by name
+app.get("/movies/:title", (req, res) => {
+  const { title } = req.params;
+  const movie = movies.find((movie) => movie.title === title);
+  if (movie) {
+    res.status(200).json(movie);
+  } else {
+    res.status(400).send("movie does not exist");
+  }
+});
+
+//get genre by title
+app.get("/movies/genre/:genreName", (req, res) => {
+  const { genreName } = req.params;
+  const genre = movies.find((movie) => movie.genre.name === genreName).genre;
+  if (genre) {
+    res.status(200).json(genre);
+  } else {
+    res.status(400).send("genre does not exist");
+  }
+});
+
+//get director by name
+app.get("/movies/directors/:directorName", (req, res) => {
+  const { directorName } = req.params;
+  const director = movies.find(
+    (movie) => movie.director.name === directorName
+  ).director;
+  if (director) {
+    res.status(200).json(director);
+  } else {
+    res.status(400).send("genre does not exist");
+  }
+});
+////////
 
 //GET requests
 app.get("/movies", (req, res) => {

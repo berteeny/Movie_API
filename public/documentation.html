@@ -4,14 +4,160 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Documentation</title>
+    <link rel="stylesheet" href="/public/styles.css" />
   </head>
   <body>
     <h1>Marvel Movies API</h1>
     <p>
-      This API shows you every Marvel movie in Release Order (TV shows not
-      included for now) and its information.
-      <br />
-      So far only then first 10, more coming!
+      This API holds data about every Marvel movie in "Release Order" (TV shows
+      not included for now).
     </p>
+    <table>
+      <tbody>
+        <tr class="title-row">
+          <td>Description of Return</td>
+          <td>Endpoint URL</td>
+          <td>HTTP Method Type</td>
+          <td>Request Body Data Format</td>
+          <td>Response Body Data Format</td>
+        </tr>
+        <tr>
+          <td>Return a list of all movies</td>
+          <td>/movies</td>
+          <td>GET</td>
+          <td>None</td>
+          <td>A JSON object holding data about all movies</td>
+        </tr>
+        <tr>
+          <td>Return data about a single movie by title</td>
+          <td>/movies/:title</td>
+          <td>GET</td>
+          <td>None</td>
+          <td>
+            A JSON object holding data about a single movie, ex:
+            <br />
+            <code>
+              { <br />
+              "title": "Iron Man", <br />
+              "director":<br />
+              {name: "Jon Favreau"},
+              <br />"genre":
+              <br />
+              {name: "superhero movie",
+              <br />description: "words" } <br />}
+            </code>
+          </td>
+        </tr>
+        <tr>
+          <td>Return data about a single movie's genre by movie title</td>
+          <td>/movies/genre/:genreName</td>
+          <td>GET</td>
+          <td>None</td>
+          <td>
+            A JSON object holding data about a genre, ex: <br />
+            <code>
+              { <br />
+              name: "superhero movie",
+              <br />description: "words" <br />}
+            </code>
+          </td>
+        </tr>
+        <tr>
+          <td>Return data about a director by name</td>
+          <td>/movies/directors/:directorName</td>
+          <td>GET</td>
+          <td>None</td>
+          <td>
+            A JSON object holding data about a director, ex: <br />
+            <code>
+              <br />
+              {name: "Jon Favreau"}</code
+            >
+          </td>
+        </tr>
+        <tr>
+          <td>Allow new users to create a profile</td>
+          <td>/users</td>
+          <td>POST</td>
+          <td>
+            A JSON object that includes data required for the user profile, ex:
+            <br />
+            <code>
+              { <br />
+              "name": "Joe", <br />
+              "email": "joey@joetown.com" <br />
+              }
+            </code>
+          </td>
+          <td>
+            A JSON object holding data from the user profile that was created,
+            along with a uuid, ex: <br />
+            <code>
+              { <br />
+              "name": "Joe", <br />
+              "email": "joey@joetown.com" <br />
+              "id": "b8d9e773-2b36-4967-83a5-af57301053ab" <br />
+              }
+            </code>
+          </td>
+        </tr>
+        <tr>
+          <td>Allow users to update their user name</td>
+          <td>/users/:id</td>
+          <td>PUT</td>
+          <td>
+            A JSON object holding the user data you wish to be updated, ex:
+            <br />
+            <code>
+              { <br />
+              "name": "joe updated name" <br />
+              }
+            </code>
+          </td>
+          <td>
+            A JSON object holding the user data, including updated data, ex:
+            <br />
+            <code>
+              { <br />
+              "id": 2, <br />
+              "name": "joe updated name", <br />
+              "favMovies": [ <br />
+              "Thor" <br />
+              ], <br />
+              "email": "joey@joetown.ca" <br />
+              }
+            </code>
+          </td>
+        </tr>
+        <tr>
+          <td>Allow users to add a movie to their list of favorites</td>
+          <td>/users/:id/:movieTitle</td>
+          <td>POST</td>
+          <td>None</td>
+          <td>
+            A message returning if the movie was added to user's favourites list
+          </td>
+        </tr>
+        <tr>
+          <td>Allow users to remove a movie from their list of favorites</td>
+          <td>/users/:id/:movieTitle</td>
+          <td>DELETE</td>
+          <td>None</td>
+          <td>
+            A message returning if the movie was removed from user's favourites
+            list
+          </td>
+        </tr>
+        <tr>
+          <td>Allow existing users to delete their user profile</td>
+          <td>/users/:id</td>
+          <td>DELETE</td>
+          <td>None</td>
+          <td>
+            A message returning if the user profile was successfully deleted
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </body>
 </html>
