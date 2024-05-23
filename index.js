@@ -157,7 +157,7 @@ app.put("/users/:id", (req, res) => {
 });
 
 //post new movie to favMovies array
-app.post("/users/:id/:movieTitle", (req, res) => {
+app.post("/users/:id/movies/:movieTitle", (req, res) => {
   const { id, movieTitle } = req.params;
 
   let user = users.find((user) => user.id == id);
@@ -172,7 +172,7 @@ app.post("/users/:id/:movieTitle", (req, res) => {
 });
 
 //delete a movie from favMovies array
-app.delete("/users/:id/:movieTitle", (req, res) => {
+app.delete("/users/:id/movies/:movieTitle", (req, res) => {
   const { id, movieTitle } = req.params;
 
   let user = users.find((user) => user.id == id);
@@ -239,11 +239,6 @@ app.get("/movies/directors/:directorName", (req, res) => {
   }
 });
 ////////
-
-//GET requests
-app.get("/movies", (req, res) => {
-  res.json(movies);
-});
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Marvel Movie API");
