@@ -3,243 +3,222 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   uuid = require("uuid");
 const app = express();
+const mongoose = require("mongoose");
+const models = require("./models.js");
+
+const movies = models.movie;
+const users = models.user;
+
+mongoose.connect("mongodb://localhost:27017/cfDB", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 app.use(bodyParser.json());
 
-let users = [
-  {
-    id: 2,
-    name: "joeseph",
-    favMovies: ["Thor"],
-    email: "joey@joetown.ca",
-  },
-  {},
-  {},
-];
-
-let movies = [
-  {
-    title: "Iron Man",
-    release: "2008",
-    director: { name: "Jon Favreau" },
-    length: "2h 6m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "The Incredible Hulk",
-    release: "2008",
-    director: { name: "Louis Leterrier" },
-    length: "1h 52m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "Iron Man 2",
-    release: "2010",
-    director: { name: "Jon Favreau" },
-    length: "2h 4m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "Thor",
-    release: "2011",
-    director: { name: "Kenneth Branagh" },
-    length: "1h 55m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "Captain America: The First Avenger",
-    release: "2011",
-    director: { name: "Joe Johnston" },
-    length: "2h 4m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "The Avengers",
-    release: "2012",
-    director: { name: "Joss Whedon" },
-    length: "2h 23m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "Iron Man 3",
-    release: "2013",
-    director: { name: "Shane Black" },
-    length: "2h 10m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "Thor: The Dark World",
-    release: "2013",
-    director: { name: "Alan Taylor" },
-    length: "1h 52m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "Captain America: The Winter Soldier",
-    release: "2014",
-    director: { name: "Anthony & Joe Russo" },
-    length: "2h 16m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-
-  {
-    title: "Gaurdians of the Galaxy",
-    release: "2014",
-    director: { name: "James Gunn" },
-    length: "2h 1m",
-    genre: {
-      name: "superhero movie",
-      description: "words",
-    },
-  },
-];
-
-//create new user
-app.post("/users", (req, res) => {
-  const newUser = req.body;
-
-  if (newUser.name) {
-    newUser.id = uuid.v4();
-    users.push(newUser);
-    res.status(201).json(newUser);
-  } else {
-    res.status(400).send("user must include a name");
-  }
+//create new user - tested
+app.post("/users", async (req, res) => {
+  await users
+    .findOne({ Username: req.body.username })
+    .then((user) => {
+      if (user) {
+        return res.status(400).send(req.body.username + "already exists");
+      } else {
+        users
+          .create({
+            username: req.body.username,
+            password: req.body.password,
+            email: req.body.email,
+            birthday: req.body.birthday,
+          })
+          .then((user) => {
+            res.status(201).json(user);
+          })
+          .catch((error) => {
+            console.error(error);
+            res.status(500).send("Error: " + error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).send("Error: " + error);
+    });
 });
 
-//Update user info
-app.put("/users/:id", (req, res) => {
-  const { id } = req.params;
-  const updatedUser = req.body;
-
-  let user = users.find((user) => user.id == id);
-  if (user) {
-    user.name = updatedUser.name;
-    res.status(200).json(user);
-  } else {
-    res.status(400).send("this user does not exist");
-  }
+//add movie to user's favMovies - tested
+app.post("/users/:username/movies/:movieID", async (req, res) => {
+  await users
+    .findOneAndUpdate(
+      { username: req.params.username },
+      {
+        $push: {
+          favMovies: req.params.movieID,
+        },
+      },
+      { new: true }
+    )
+    .then((updatedUser) => {
+      res.json(updatedUser);
+    })
+    .catch((er) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
-//post new movie to favMovies array
-app.post("/users/:id/movies/:movieTitle", (req, res) => {
-  const { id, movieTitle } = req.params;
-
-  let user = users.find((user) => user.id == id);
-  if (user) {
-    user.favMovies.push(movieTitle);
-    res
-      .status(200)
-      .send(`${movieTitle} has been added to user ${id}'s list of fav's`);
-  } else {
-    res.status(400).send("this user does not exist");
-  }
+//update user info by username - tested
+app.put("/users/:username", async (req, res) => {
+  await users
+    .findOneAndUpdate(
+      { username: req.params.username },
+      {
+        $set: {
+          username: req.body.username,
+          password: req.body.password,
+          email: req.body.email,
+          birthday: req.body.birthday,
+        },
+      },
+      {
+        new: true,
+      }
+    )
+    .then((updatedUser) => {
+      res.json(updatedUser);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
-//delete a movie from favMovies array
-app.delete("/users/:id/movies/:movieTitle", (req, res) => {
-  const { id, movieTitle } = req.params;
-
-  let user = users.find((user) => user.id == id);
-  if (user) {
-    user.favMovies = user.favMovies.filter((title) => title !== movieTitle);
-    res
-      .status(200)
-      .send(`${movieTitle} has been removed from user ${id}'s list of fav's`);
-  } else {
-    res.status(400).send("this user does not exist");
-  }
+//delete a movie from favMovies array - tested
+app.delete("/users/:username/movies/:movieID", async (req, res) => {
+  await users
+    .findOneAndUpdate(
+      { username: req.params.username },
+      {
+        $pull: {
+          favMovies: req.params.movieID,
+        },
+      },
+      { new: true }
+    )
+    .then((updatedUser) => {
+      res.json(updatedUser);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
-//delete user profile
-app.delete("/users/:id", (req, res) => {
-  const { id } = req.params;
-
-  let user = users.find((user) => user.id == id);
-  if (user) {
-    users = users.filter((user) => user.id != id);
-    res.status(200).send(`User ${id} has been deleted.`);
-  } else {
-    res.status(400).send("this user does not exist");
-  }
+//delete user by username - tested
+app.delete("/users/:username", async (req, res) => {
+  await users
+    .findOneAndDelete({ username: req.params.username })
+    .then((user) => {
+      if (!user) {
+        res.status(400).send((req.params.username = " was not found"));
+      } else {
+        res.status(200).send((req.params.username = " was deleted."));
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
-//get all movies
-app.get("/movies", (req, res) => {
-  res.status(200).json(movies);
+//get all movies - tested
+app.get("/movies", async (req, res) => {
+  await movies
+    .find()
+    .then((movies) => {
+      res.status(201).json(movies);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
 });
 
-//get single movie data by name
+//get all users - tested
+app.get("/users", async (req, res) => {
+  await users
+    .find()
+    .then((users) => {
+      res.status(201).json(users);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
+});
+
+//get user by username - tested
+app.get("/users/:username", async (req, res) => {
+  await users
+    .findOne({ username: req.params.username })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
+});
+
+//get single movie data by name - tested
 app.get("/movies/:title", (req, res) => {
-  const { title } = req.params;
-  const movie = movies.find((movie) => movie.title === title);
-  if (movie) {
-    res.status(200).json(movie);
-  } else {
-    res.status(400).send("movie does not exist");
+  movies
+    .findOne({ title: req.params.title })
+    .then((movie) => {
+      res.json(movie);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error: " + err);
+    });
+});
+
+//get genre by name - tested
+app.get("/movies/genre/:name", async (req, res) => {
+  try {
+    const genreName = req.params.name;
+    const movie = await movies.findOne({ "genre.name": genreName });
+
+    if (movie) {
+      res.status(200).json(movie.genre);
+    } else {
+      res.status(404).send("This genre does not exist");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
   }
 });
 
-//get genre by title
-app.get("/movies/genre/:genreName", (req, res) => {
-  const { genreName } = req.params;
-  const genre = movies.find((movie) => movie.genre.name === genreName).genre;
-  if (genre) {
-    res.status(200).json(genre);
-  } else {
-    res.status(400).send("genre does not exist");
-  }
-});
+//get director by name - tested
+app.get("/movies/director/:name", async (req, res) => {
+  try {
+    const directorName = req.params.name;
+    const movie = await movies.findOne({ "director.name": directorName });
 
-//get director by name
-app.get("/movies/directors/:directorName", (req, res) => {
-  const { directorName } = req.params;
-  const director = movies.find(
-    (movie) => movie.director.name === directorName
-  ).director;
-  if (director) {
-    res.status(200).json(director);
-  } else {
-    res.status(400).send("genre does not exist");
+    if (movie) {
+      res.status(200).json(movie.director);
+    } else {
+      res.status(404).send("This director does not exist");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error: " + err);
   }
 });
 ////////
 
+//main page - tested
 app.get("/", (req, res) => {
   res.send("Welcome to the Marvel Movie API");
 });

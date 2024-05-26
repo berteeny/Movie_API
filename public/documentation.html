@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Documentation</title>
-    <link rel="stylesheet" href="/public/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <h1>Marvel Movies API</h1>
@@ -38,13 +38,28 @@
             <br />
             <code>
               { <br />
-              "title": "Iron Man", <br />
-              "director":<br />
-              {name: "Jon Favreau"},
-              <br />"genre":
-              <br />
-              {name: "superhero movie",
-              <br />description: "words" } <br />}
+
+              _id: ObjectId('66529cb5816f90f3004bd561'), <br />
+              title: 'Iron Man', <br />
+              release: '2008', <br />
+              director: { <br />
+              name: 'Jon Favreau', <br />
+              bio: 'Jonathan Kolia Favreau is an American filmmaker and actor,
+              well known for his directorial and acting credits in multple films
+              within the Marvel Cinematic Universe.', <br />
+              birth: '1966-10-19', <br />
+              death: '' <br />
+              }, <br />
+              length: '2h 6m', <br />
+              genre: { <br />
+              name: 'comedy', <br />
+              description: 'Comedy is a film genre that emphasizes humor. These
+              films are designed to amuse audiences and make them laugh. Films
+              in this genre typically have a happy ending.' <br />
+              }, <br />
+              description: 'After being held captive in an Afghan cave,
+              billionaire engineer Tony Stark creates a unique weaponized suit
+              of armor to fight evil.' }
             </code>
           </td>
         </tr>
@@ -56,22 +71,32 @@
           <td>
             A JSON object holding data about a genre, ex: <br />
             <code>
-              { <br />
-              name: "superhero movie",
-              <br />description: "words" <br />}
+              genre: { <br />
+              name: 'comedy', <br />
+              description: 'Comedy is a film genre that emphasizes humor. These
+              films are designed to amuse audiences and make them laugh. Films
+              in this genre typically have a happy ending.' <br />
+              }
             </code>
           </td>
         </tr>
         <tr>
           <td>Return data about a director by name</td>
-          <td>/movies/directors/:directorName</td>
+          <td>/movies/director/:directorName</td>
           <td>GET</td>
           <td>None</td>
           <td>
             A JSON object holding data about a director, ex: <br />
             <code>
               <br />
-              {name: "Jon Favreau"}</code
+              director: { <br />
+              name: 'Jon Favreau', <br />
+              bio: 'Jonathan Kolia Favreau is an American filmmaker and actor,
+              well known for his directorial and acting credits in multple films
+              within the Marvel Cinematic Universe.', <br />
+              birth: '1966-10-19', <br />
+              death: '' <br />
+              }</code
             >
           </td>
         </tr>
@@ -84,33 +109,38 @@
             <br />
             <code>
               { <br />
-              "name": "Joe", <br />
-              "email": "joey@joetown.com" <br />
+              username: 'kramer', <br />
+              password: 'ye-ow', <br />
+              email: 'cosmo@mail.jk', <br />
+              birthday: '1975-11-19' <br />
+              <br />
               }
             </code>
           </td>
           <td>
             A JSON object holding data from the user profile that was created,
-            along with a uuid, ex: <br />
+            along with a unique ObjectID, ex: <br />
             <code>
               { <br />
-              "name": "Joe", <br />
-              "email": "joey@joetown.com" <br />
-              "id": "b8d9e773-2b36-4967-83a5-af57301053ab" <br />
+              _id: ObjectId('6652aa94816f90f3004bd56d'), <br />
+              username: 'kramer', <br />
+              password: 'ye-ow', <br />
+              email: 'cosmo@mail.jk', <br />
+              birthday: ISODate('1975-11-19T00:00:00.000Z'), <br />
               }
             </code>
           </td>
         </tr>
         <tr>
           <td>Allow users to update their user name</td>
-          <td>/users/:id</td>
+          <td>/users/:username</td>
           <td>PUT</td>
           <td>
             A JSON object holding the user data you wish to be updated, ex:
             <br />
             <code>
               { <br />
-              "name": "joe updated name" <br />
+              "username": "joe updated name" <br />
               }
             </code>
           </td>
@@ -119,11 +149,8 @@
             <br />
             <code>
               { <br />
-              "id": 2, <br />
-              "name": "joe updated name", <br />
-              "favMovies": [ <br />
-              "Thor" <br />
-              ], <br />
+              _id: ObjectId('6652aa94816f90f3004bd56d'), <br />
+              "username": "joe updated name", <br />
               "email": "joey@joetown.ca" <br />
               }
             </code>
@@ -131,26 +158,45 @@
         </tr>
         <tr>
           <td>Allow users to add a movie to their list of favorites</td>
-          <td>/users/:id/movies/:movieTitle</td>
+          <td>/users/:username/movies/:movieID</td>
           <td>POST</td>
           <td>None</td>
           <td>
-            A message returning if the movie was added to user's favourites list
+            A JSON object holding the user data, including updated favMovie
+            array, ex:
+            <br />
+            <code>
+              { <br />
+              _id: ObjectId('6652aa94816f90f3004bd56d'), <br />
+              "username": "joe updated name", <br />
+              "email": "joey@joetown.ca" <br />
+              "favMovies": ["6652a205816f90f3004bd567"] <br />
+              }
+            </code>
           </td>
         </tr>
         <tr>
           <td>Allow users to remove a movie from their list of favorites</td>
-          <td>/users/:id/movies/:movieTitle</td>
+          <td>/users/:username/movies/:movieID</td>
           <td>DELETE</td>
           <td>None</td>
           <td>
-            A message returning if the movie was removed from user's favourites
-            list
+            A JSON object holding the user data, including updated favMovie
+            array, ex:
+            <br />
+            <code>
+              { <br />
+              _id: ObjectId('6652aa94816f90f3004bd56d'), <br />
+              "username": "joe updated name", <br />
+              "email": "joey@joetown.ca" <br />
+              "favMovies: []" <br />
+              }
+            </code>
           </td>
         </tr>
         <tr>
           <td>Allow existing users to delete their user profile</td>
-          <td>/users/:id</td>
+          <td>/users/:username</td>
           <td>DELETE</td>
           <td>None</td>
           <td>
