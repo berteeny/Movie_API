@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 let movieSchema = mongoose.Schema({
   title: { type: String, required: true },
   release: Number,
-  description: { type: String, required: true },
   director: {
     name: String,
     bio: String,
@@ -15,7 +14,7 @@ let movieSchema = mongoose.Schema({
     name: String,
     description: String,
   },
-
+  description: { type: String, required: true },
   imagePath: String,
 });
 
@@ -26,7 +25,6 @@ let userSchema = mongoose.Schema({
   birthday: Date,
   favMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: "movie" }],
 });
-
 
 let movie = mongoose.model("movie", movieSchema);
 let user = mongoose.model("user", userSchema);
