@@ -10,8 +10,14 @@ const { check, validationResult } = require("express-validator");
 const movies = models.movie;
 const users = models.user;
 
-//connecting to cfDB database
-mongoose.connect("mongodb://localhost:27017/cfDB", {
+//connecting to lOCAL cfDB database
+// mongoose.connect("mongodb://localhost:27017/cfDB", {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// });
+
+//connecting to mongoDB online database
+mongoose.connect(process.env.CONNECTION_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -336,5 +342,3 @@ const port = process.env.PORT || 8080;
 app.listen(port, "0.0.0.0", () => {
   console.log("Listening on Port " + port);
 });
-
-
