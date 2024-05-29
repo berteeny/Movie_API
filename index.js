@@ -5,6 +5,7 @@ const express = require("express"),
 const app = express();
 const mongoose = require("mongoose");
 const models = require("./models.js");
+const { check, validationResult } = require("express-validator");
 
 const movies = models.movie;
 const users = models.user;
@@ -17,39 +18,62 @@ mongoose.connect("mongodb://localhost:27017/cfDB", {
 
 app.use(bodyParser.json());
 
+const cors = require("cors");
+app.use(cors());
+
 let auth = require("./auth.js")(app);
 const passport = require("passport");
 require("./passport.js");
 
 //create new user - tested - no auth for this endpoint, user not created yet
-app.post("/users", async (req, res) => {
-  await users
-    .findOne({ Username: req.body.username })
-    .then((user) => {
-      if (user) {
-        return res.status(400).send(req.body.username + "already exists");
-      } else {
-        users
-          .create({
-            username: req.body.username,
-            password: req.body.password,
-            email: req.body.email,
-            birthday: req.body.birthday,
-          })
-          .then((user) => {
-            res.status(201).json(user);
-          })
-          .catch((error) => {
-            console.error(error);
-            res.status(500).send("Error: " + error);
-          });
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send("Error: " + error);
-    });
-});
+app.post(
+  "/users",
+  //validation checks
+  [
+    check("username", "Username is required - mimimum 5 characters").isLength({
+      min: 5,
+    }),
+    check(
+      "username",
+      "Username contains non alphanumeric characters - not allowed."
+    ).isAlphanumeric(),
+    check("password", "Password is required").not().isEmpty(),
+    check("email", "Email does not appear valid").isEmail(),
+  ],
+  async (req, res) => {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    let hashedPassword = users.hashPassword(req.body.password);
+    await users
+      .findOne({ Username: req.body.username })
+      .then((user) => {
+        if (user) {
+          return res.status(400).send(req.body.username + "already exists");
+        } else {
+          users
+            .create({
+              username: req.body.username,
+              password: hashedPassword,
+              email: req.body.email,
+              birthday: req.body.birthday,
+            })
+            .then((user) => {
+              res.status(201).json(user);
+            })
+            .catch((error) => {
+              console.error(error);
+              res.status(500).send("Error: " + error);
+            });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send("Error: " + error);
+      });
+  }
+);
 
 //add movie to user's favMovies - tested + auth
 app.post(
@@ -82,8 +106,25 @@ app.post(
 //update user info by username - tested + auth
 app.put(
   "/users/:username",
+  [
+    check("username", "Username is required").isLength({
+      min: 5,
+    }),
+    check(
+      "username",
+      "Username contains non alphanumeric characters - not allowed."
+    ).isAlphanumeric(),
+    check("password", "Password is required").not().isEmpty(),
+    check("email", "Email does not appear valid").isEmail(),
+  ],
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
+    let errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+    let hashedPassword = users.hashPassword(req.body.password);
+
     if (req.user.username !== req.params.username) {
       return res.status(400).send("Permission denied");
     }
@@ -93,7 +134,7 @@ app.put(
         {
           $set: {
             username: req.body.username,
-            password: req.body.password,
+            password: hashedPassword,
             email: req.body.email,
             birthday: req.body.birthday,
           },
@@ -291,6 +332,9 @@ app.use((err, req, res, next) => {
   console.log(err);
 });
 
-app.listen(8080, () => {
-  console.log("Your app is listening on port 8080.");
+const port = process.env.PORT || 8080;
+app.listen(port, "0.0.0.0", () => {
+  console.log("Listening on Port " + port);
 });
+
+
