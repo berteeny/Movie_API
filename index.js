@@ -281,7 +281,7 @@ app.get(
 
 //get genre by name - tested + auth
 app.get(
-  "/movies/genre/:name",
+  "/movies/genres/:name",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
@@ -302,7 +302,7 @@ app.get(
 
 //get director by name - tested + auth
 app.get(
-  "/movies/director/:name",
+  "/movies/directors/:name",
   passport.authenticate("jwt", { session: false }),
   async (req, res) => {
     try {
