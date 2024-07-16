@@ -49,9 +49,9 @@ Return a list of all movies: `/movies` - Method: `GET`
 
 Return data about a single movie: `/movies/:title` - Method: `GET`
 
-Return data about a single genre: `/movies/genre/:genreName` - Method: `GET`
+Return data about a single genre: `/movies/genres/:genreName` - Method: `GET`
 
-Return data about a single director: `/movies/director/:directorName` - Method: `GET`
+Return data about a single director: `/movies/directors/:directorName` - Method: `GET`
 
 Add a movie to user's favourites list: `/users/:username/movies/:movieID` - Method: `POST`
 
