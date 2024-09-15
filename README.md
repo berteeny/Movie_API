@@ -6,7 +6,7 @@ The Marvel Movie API is a RESTful API that communicates with a database of Marve
 
 The code can be pulled from this repository and run in a browser preview with 
 
-`http://127.0.0.1:3000/documentation.html` to see the documentation. All `CRUD` operations can be run Postman.
+`http://127.0.0.1:3000/documentation.html` to see the documentation. All `CRUD` operations can be run with Postman.
 
 ## Features
 
