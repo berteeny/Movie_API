@@ -1,6 +1,6 @@
 # Marvel Movie API
 
-The Marvel Movie API is a RESTful API that communicates with a database of Marvel Movies, created with and hosted online by MongoDB. The [documentation](https://movie-api-v2dh.onrender.com/documentation.html) and logic for the API is hosted on Render. 
+The Marvel Movie API is a RESTful API that communicates with a database of Marvel Movies, created with and hosted online by MongoDB. The [documentation](https://movie-api-v2dh.onrender.com/documentation.html) and logic for the API is hosted on Render. (Note * the API webpage does take an extra few moments to load on first startup as it is hoested using Render's free version).
 
 ## Installation
 
